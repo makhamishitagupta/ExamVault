@@ -1,6 +1,26 @@
-const API_BASE = "http://localhost:5000";
+export const API_BASE = import.meta.env.VITE_API_BASE || "https://examvault-6tnn.onrender.com";
 
 export const PENDING_ACTION_KEY = "examvault_pending_action";
+
+/**
+ * Retries a fetch on 503 (Render cold start) with increasing delays.
+ * Gives up after maxAttempts and returns the last response.
+ */
+export const fetchWithRetry = async (url, options = {}, maxAttempts = 8) => {
+  const delays = [3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000];
+  let lastRes;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.status !== 503) return res; // success or real error — stop retrying
+      lastRes = res;
+    } catch (err) {
+      // network error (server fully down) — keep retrying
+    }
+    await new Promise((r) => setTimeout(r, delays[attempt] ?? 12000));
+  }
+  return lastRes; // return last 503 after giving up
+};
 
 export const apiFetch = async (path, options = {}) => {
   const token = localStorage.getItem("token");
@@ -35,9 +55,19 @@ export const logout = async () => {
 
 export const getAuthUser = async () => {
   try {
-    const res = await apiFetch("/user/me");
-    if (!res.ok) {
-      if (res.status === 401) {
+    const token = localStorage.getItem("token");
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+      headers["x-auth-token"] = token;
+    }
+    // Use retry so 503 cold-start is handled silently
+    const res = await fetchWithRetry(`${API_BASE}/user/me`, {
+      headers,
+      credentials: "include",
+    });
+    if (!res || !res.ok) {
+      if (res?.status === 401) {
         await logout();
         return null;
       }
@@ -47,7 +77,7 @@ export const getAuthUser = async () => {
     const data = await res.json();
     return data.user || null;
   } catch (err) {
-    console.error("Auth check failed", err);
+    // Silent — don't log auth errors on public pages
     return null;
   }
 };

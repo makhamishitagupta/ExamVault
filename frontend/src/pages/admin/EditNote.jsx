@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiEdit3 } from 'react-icons/fi';
 
 const EditNote = () => {
@@ -16,11 +17,11 @@ const EditNote = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const subjectsRes = await fetch('http://localhost:5000/subject/getAll');
+        const subjectsRes = await fetch(`${API_BASE}/subject/getAll`);
         const subjectsData = await subjectsRes.json();
         setSubjects(subjectsData || []);
 
-        const noteRes = await fetch(`http://localhost:5000/notes/view/${id}`);
+        const noteRes = await fetch(`${API_BASE}/notes/view/${id}`);
 
         if (!noteRes.ok) {
           throw new Error('Failed to fetch note data');
@@ -58,7 +59,7 @@ const EditNote = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/notes/update/${id}`, {
+      const response = await fetch(`${API_BASE}/notes/update/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

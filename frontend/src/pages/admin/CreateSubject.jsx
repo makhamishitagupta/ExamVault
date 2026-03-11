@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { API_BASE } from '../../utils/auth';
 import { FiPlusSquare } from 'react-icons/fi';
 
 const CreateSubject = () => {
@@ -28,7 +29,7 @@ const CreateSubject = () => {
       if (data.year !== '' && data.year != null) body.year = parseInt(data.year);
       if (data.lab) body.lab = true;
 
-      const response = await fetch('http://localhost:5000/subject/create', {
+      const response = await fetch(`${API_BASE}/subject/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

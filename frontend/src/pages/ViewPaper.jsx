@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
-import { apiFetch, consumePendingAction, setPendingAction } from '../utils/auth';
+import { API_BASE, apiFetch, consumePendingAction, setPendingAction } from '../utils/auth';
 import { FiMessageCircle } from 'react-icons/fi';
 
 const ViewPaper = () => {
@@ -46,8 +46,8 @@ const ViewPaper = () => {
     const makeAbsolute = (u) => {
       if (!u) return u;
       if (/^https?:\/\//i.test(u)) return u;
-      if (u.startsWith('/')) return `http://localhost:5000${u}`;
-      return `http://localhost:5000/${u}`;
+      if (u.startsWith('/')) return `${API_BASE}${u}`;
+      return `${API_BASE}/${u}`;
     };
 
     window.open(makeAbsolute(data.pdfUrl));
@@ -79,8 +79,8 @@ const ViewPaper = () => {
     const fetchResource = async () => {
       try {
         const url = isPaperRoute
-          ? `http://localhost:5000/paper/view/${id}`
-          : `http://localhost:5000/notes/view/${id}`;
+          ? `${API_BASE}/paper/view/${id}`
+          : `${API_BASE}/notes/view/${id}`;
 
         const res = await fetch(url);
 
@@ -104,7 +104,7 @@ const ViewPaper = () => {
     const fetchComments = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/comments/${itemType}/${id}`
+          `${API_BASE}/comments/${itemType}/${id}`
         );
 
         if (!res.ok) {
@@ -205,8 +205,8 @@ const ViewPaper = () => {
                     title={resource?.title || "PDF Preview"}
                     src={
                       isPaperRoute
-                        ? `http://localhost:5000/paper/preview/${id}`
-                        : `http://localhost:5000/notes/preview/${id}`
+                        ? `${API_BASE}/paper/preview/${id}`
+                        : `${API_BASE}/notes/preview/${id}`
                     }
                     className="w-full h-full"
                     style={{ border: "none", minHeight: 480 }}

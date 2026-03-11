@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
-import { apiFetch, consumePendingAction, setPendingAction } from '../utils/auth';
+import { API_BASE, apiFetch, consumePendingAction, setPendingAction } from '../utils/auth';
 
 const ResourceCard = ({ item, type = 'paper', isFavorite: initialFav }) => {
   const [isFavorite, setIsFavorite] = useState(initialFav);
@@ -56,8 +56,8 @@ const ResourceCard = ({ item, type = 'paper', isFavorite: initialFav }) => {
     const makeAbsolute = (u) => {
       if (!u) return u;
       if (/^https?:\/\//i.test(u)) return u;
-      if (u.startsWith('/')) return `http://localhost:5000${u}`;
-      return `http://localhost:5000/${u}`;
+      if (u.startsWith('/')) return `${API_BASE}${u}`;
+      return `${API_BASE}/${u}`;
     };
 
     window.open(makeAbsolute(data.pdfUrl));

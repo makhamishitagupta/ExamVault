@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiFileText } from 'react-icons/fi';
 
 const ManagePapers = () => {
@@ -16,7 +17,7 @@ const ManagePapers = () => {
   const fetchPapers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/paper');
+      const res = await fetch(`${API_BASE}/paper`);
       const data = await res.json();
       setPapers(data.papers || []);
     } catch (err) {
@@ -36,7 +37,7 @@ const ManagePapers = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/paper/delete/${paperId}`, {
+      const response = await fetch(`${API_BASE}/paper/delete/${paperId}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': token,

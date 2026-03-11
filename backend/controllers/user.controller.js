@@ -11,7 +11,7 @@ const buildAuthCookieOptions = () => {
     return {
         httpOnly: true,
         secure: isProd,
-        sameSite: "lax",
+        sameSite: isProd ? "none" : "lax",
         path: "/",
     };
 };

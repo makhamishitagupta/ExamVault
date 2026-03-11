@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiBarChart2, FiBell, FiBook, FiClipboard, FiDownload, FiFileText, FiUploadCloud, FiUsers } from 'react-icons/fi';
 
 const AdminHome = () => {
@@ -18,7 +19,7 @@ const AdminHome = () => {
           setLoading(false);
           return;
         }
-        const res = await fetch('http://localhost:5000/analytics', {
+        const res = await fetch(`${API_BASE}/analytics`, {
           headers: { 'x-auth-token': token },
         });
         const data = await res.json().catch(() => ({}));

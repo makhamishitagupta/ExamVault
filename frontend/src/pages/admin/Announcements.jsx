@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiBell, FiX } from 'react-icons/fi';
-
-const API_URL = 'http://localhost:5000';
+import { API_BASE } from '../../utils/auth';
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState([]);
@@ -34,7 +33,7 @@ const Announcements = () => {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/announcements/viewAll`);
+      const response = await fetch(`${API_BASE}/announcements/viewAll`);
       if (!response.ok) throw new Error('Failed to fetch announcements');
       const data = await response.json();
       setAnnouncements(data);
@@ -64,7 +63,7 @@ const Announcements = () => {
 
       if (editingId) {
         // Update announcement
-        const response = await fetch(`${API_URL}/announcements/update/${editingId}`, {
+        const response = await fetch(`${API_BASE}/announcements/update/${editingId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -83,7 +82,7 @@ const Announcements = () => {
         setEditingId(null);
       } else {
         // Create announcement
-        const response = await fetch(`${API_URL}/announcements/create`, {
+        const response = await fetch(`${API_BASE}/announcements/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -136,7 +135,7 @@ const Announcements = () => {
         return;
       }
 
-      const response = await fetch(`${API_URL}/announcements/delete/${id}`, {
+      const response = await fetch(`${API_BASE}/announcements/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': token

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { API_BASE } from '../../utils/auth';
 import { FiUserPlus } from 'react-icons/fi';
 
 const CreateAdmin = () => {
@@ -30,7 +31,7 @@ const CreateAdmin = () => {
         password: data.password,
       };
 
-      const response = await fetch('http://localhost:5000/user/admin/create', {
+      const response = await fetch(`${API_BASE}/user/admin/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

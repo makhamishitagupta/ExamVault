@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiBook } from 'react-icons/fi';
 
 const ManageSubjects = () => {
@@ -16,7 +17,7 @@ const ManageSubjects = () => {
   const fetchSubjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/subject/getAll');
+      const res = await fetch(`${API_BASE}/subject/getAll`);
       const data = await res.json();
       setSubjects(Array.isArray(data) ? data : (data.subjects || []));
     } catch (err) {
@@ -34,7 +35,7 @@ const ManageSubjects = () => {
         setError('You must be logged in to delete subjects.');
         return;
       }
-      const response = await fetch(`http://localhost:5000/subject/deleteSubject/${subjectId}`, {
+      const response = await fetch(`${API_BASE}/subject/deleteSubject/${subjectId}`, {
         method: 'DELETE',
         headers: { 'x-auth-token': token },
       });

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useForm } from "react-hook-form";
-import { peekPendingAction } from "../utils/auth";
+import { API_BASE, peekPendingAction } from "../utils/auth";
 
 
 
@@ -16,7 +16,7 @@ const Login = () => {
     setLoginError(''); // Clear previous errors
     
     try {
-      const response = await fetch("http://localhost:5000/user/login", {
+      const response = await fetch(`${API_BASE}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -28,13 +28,16 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'https://frontend-examvault.vercel.app',
+    process.env.FRONTEND_URL, // dynamically passed via Render environments
 ];
 
 const corsOptions = {
     origin: (origin, callback) => {
         // Allow requests with no origin (e.g. curl, Postman, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        
+        // Match specific origins or any vercel.app deploy/preview URL
+        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
             callback(new Error(`CORS policy: origin '${origin}' not allowed`));

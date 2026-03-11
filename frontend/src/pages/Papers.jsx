@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ResourceCard from '../components/ResourceCard';
-import { apiFetch } from '../utils/auth';
+import { API_BASE, apiFetch, fetchWithRetry } from '../utils/auth';
 import { FiFileText } from 'react-icons/fi';
 
 const Papers = () => {
@@ -39,11 +39,12 @@ const Papers = () => {
   useEffect(() => {
     const fetchPapers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/paper");
+        const res = await fetchWithRetry(`${API_BASE}/paper`);
         const data = await res.json();
-        setPapers(data.papers);
+        // Guard: data.papers may be undefined if server returns error object
+        setPapers(Array.isArray(data?.papers) ? data.papers : []);
       } catch (err) {
-        console.error("Failed to fetch papers", err);
+        setPapers([]);
       } finally {
         setLoading(false);
       }

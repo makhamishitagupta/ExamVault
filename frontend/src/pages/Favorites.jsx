@@ -12,22 +12,14 @@ const Favorites = () => {
     const fetchFavorites = async () => {
       try {
         const res = await apiFetch("/favorite");
-
+        if (!res.ok) return;
         const data = await res.json();
+        const favList = Array.isArray(data?.favorites) ? data.favorites : [];
 
-        const papers = data.favorites
-          .filter(f => f.itemType === "Paper")
-          .map(f => f.item);
-
-        const notes = data.favorites
-          .filter(f => f.itemType === "Notes")
-          .map(f => f.item);
-
-        setFavoritePapers(papers);
-        setFavoriteNotes(notes);
-
+        setFavoritePapers(favList.filter(f => f.itemType === "Paper").map(f => f.item));
+        setFavoriteNotes(favList.filter(f => f.itemType === "Notes").map(f => f.item));
       } catch (err) {
-        console.error("Failed to fetch favorites", err);
+        // server offline — keep empty arrays, no crash
       }
     };
     fetchFavorites();

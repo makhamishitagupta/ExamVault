@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { isAuthenticated } from '../utils/auth';
+import { API_BASE, isAuthenticated } from '../utils/auth';
 
 import { useForm } from "react-hook-form";
 const Register = () => {
@@ -8,7 +8,7 @@ const Register = () => {
   const { register: registerForm, handleSubmit: handleSubmitForm, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
-    const response = await fetch("http://localhost:5000/user/register", {
+    const response = await fetch(`${API_BASE}/user/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

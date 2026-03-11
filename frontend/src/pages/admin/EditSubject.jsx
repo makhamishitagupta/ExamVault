@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiEdit3 } from 'react-icons/fi';
 
 const EditSubject = () => {
@@ -15,7 +16,7 @@ const EditSubject = () => {
   useEffect(() => {
     const fetchSubject = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/subject/getSuject/${id}`);
+        const res = await fetch(`${API_BASE}/subject/getSuject/${id}`);
         if (!res.ok) throw new Error('Failed to fetch subject');
         const data = await res.json();
         const subject = Array.isArray(data) ? data[0] : data;
@@ -52,7 +53,7 @@ const EditSubject = () => {
       if (data.year !== '' && data.year != null) body.year = parseInt(data.year);
       body.lab = !!data.lab;
 
-      const response = await fetch(`http://localhost:5000/subject/updateSubject/${id}`, {
+      const response = await fetch(`${API_BASE}/subject/updateSubject/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

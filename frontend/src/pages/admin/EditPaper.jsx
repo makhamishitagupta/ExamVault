@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiEdit3 } from 'react-icons/fi';
 
 const EditPaper = () => {
@@ -18,13 +19,13 @@ const EditPaper = () => {
     const fetchData = async () => {
       try {
         // Fetch subjects
-        const subjectsRes = await fetch('http://localhost:5000/subject/getAll');
+        const subjectsRes = await fetch(`${API_BASE}/subject/getAll`);
         const subjectsData = await subjectsRes.json();
         setSubjects(subjectsData || []);
 
         // Fetch paper data
         const token = localStorage.getItem('token');
-        const paperRes = await fetch(`http://localhost:5000/paper/view/${id}`, {
+        const paperRes = await fetch(`${API_BASE}/paper/view/${id}`, {
           headers: {
             'x-auth-token': token,
           },
@@ -83,7 +84,7 @@ const EditPaper = () => {
         requestBody.year = null; // Send null to clear year
       }
 
-      const response = await fetch(`http://localhost:5000/paper/update/${id}`, {
+      const response = await fetch(`${API_BASE}/paper/update/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

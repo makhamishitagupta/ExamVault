@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiBookOpen } from 'react-icons/fi';
 
 const ManageNotes = () => {
@@ -16,7 +17,7 @@ const ManageNotes = () => {
   const fetchNotes = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/notes');
+      const res = await fetch(`${API_BASE}/notes`);
       const data = await res.json();
       setNotes(data.notes || []);
     } catch (err) {
@@ -36,7 +37,7 @@ const ManageNotes = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/notes/delete/${noteId}`, {
+      const response = await fetch(`${API_BASE}/notes/delete/${noteId}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': token,

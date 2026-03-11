@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../../utils/auth';
 import { FiBarChart2, FiBookOpen, FiDownload, FiFileText, FiUsers } from 'react-icons/fi';
 
 const Analytics = () => {
@@ -17,7 +18,7 @@ const Analytics = () => {
           setLoading(false);
           return;
         }
-        const res = await fetch('http://localhost:5000/analytics', {
+        const res = await fetch(`${API_BASE}/analytics`, {
           headers: { 'x-auth-token': token },
         });
         const data = await res.json().catch(() => ({}));

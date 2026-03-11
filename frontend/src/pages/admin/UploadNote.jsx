@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../utils/auth';
 import { FiUploadCloud } from 'react-icons/fi';
 
 const UploadNote = () => {
@@ -15,7 +16,7 @@ const UploadNote = () => {
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const res = await fetch('http://localhost:5000/subject/getAll');
+        const res = await fetch(`${API_BASE}/subject/getAll`);
         const data = await res.json();
         setSubjects(data || []);
       } catch (err) {
@@ -48,7 +49,7 @@ const UploadNote = () => {
       formData.append('year', parseInt(data.unit));
       formData.append('avatar', data.file[0]);
 
-      const response = await fetch('http://localhost:5000/notes/create', {
+      const response = await fetch(`${API_BASE}/notes/create`, {
         method: 'POST',
         headers: {
           'x-auth-token': token,
