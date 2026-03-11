@@ -1,0 +1,85 @@
+const API_BASE = "http://localhost:5000";
+
+export const PENDING_ACTION_KEY = "examvault_pending_action";
+
+export const apiFetch = async (path, options = {}) => {
+  const token = localStorage.getItem("token");
+  const headers = new Headers(options.headers || {});
+
+  // Preferred: JWT cookie (requires credentials: 'include')
+  // Compatibility: also send Authorization + legacy x-auth-token if we have one.
+  if (token) {
+    if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+    if (!headers.has("x-auth-token")) headers.set("x-auth-token", token);
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
+
+  return res;
+};
+
+export const logout = async () => {
+  try {
+    await apiFetch("/user/logout", { method: "POST" });
+  } catch (err) {
+    console.error("Logout failed", err);
+  } finally {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+};
+
+export const getAuthUser = async () => {
+  try {
+    const res = await apiFetch("/user/me");
+    if (!res.ok) {
+      if (res.status === 401) {
+        await logout();
+        return null;
+      }
+      return null;
+    }
+
+    const data = await res.json();
+    return data.user || null;
+  } catch (err) {
+    console.error("Auth check failed", err);
+    return null;
+  }
+};
+
+export const isAuthenticated = async () => {
+  const user = await getAuthUser();
+  return user !== null;
+};
+
+export const setPendingAction = (action) => {
+  try {
+    sessionStorage.setItem(PENDING_ACTION_KEY, JSON.stringify(action));
+  } catch {
+    // ignore
+  }
+};
+
+export const peekPendingAction = () => {
+  try {
+    const raw = sessionStorage.getItem(PENDING_ACTION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+export const consumePendingAction = () => {
+  const action = peekPendingAction();
+  try {
+    sessionStorage.removeItem(PENDING_ACTION_KEY);
+  } catch {
+    // ignore
+  }
+  return action;
+};

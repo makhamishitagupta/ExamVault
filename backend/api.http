@@ -1,0 +1,91 @@
+GET http://localhost:5000/user/check HTTP/1.1
+
+###
+POST http://localhost:5000/user/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "securepassword",
+  "email": "newuser@gmail.com",
+  "name": "New User"
+}
+
+###
+POST http://localhost:5000/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "newuser@gmail.com",
+  "password": "securepassword"
+}
+
+###
+POST http://localhost:5000/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "admin@examvault.com",
+  "password": "Admin@123"
+}
+
+###
+GET http://localhost:5000/paper/create HTTP/1.1
+x-auth-token: 43fd71e5149df44442843c7950f2b4c7d7c93071e337f4ac96d97a712d82aeca
+
+###
+GET http://localhost:5000/user/logout HTTP/1.1
+x-auth-token: 43fd71e5149df44442843c7950f2b4c7d7c93071e337f4ac96d97a712d82aeca
+
+###
+POST http://localhost:5000/subject/create HTTP/1.1
+Content-Type: application/json
+x-auth-token: a8343fc8e65e7845fbd0342f3c6502ce31b26296fc78cc2b2c08d56aea8c1200
+
+
+{
+  "name": "python",
+  "code": "cpy04"
+}
+
+###
+PUT http://localhost:5000/subject/updateSubject/698163d42d82c532c7462580 HTTP/1.1
+Content-Type: application/json
+x-auth-token: a8343fc8e65e7845fbd0342f3c6502ce31b26296fc78cc2b2c08d56aea8c1200
+
+
+{
+  "year": 2
+}
+
+### 
+GET http://localhost:5000/subject/getAll HTTP/1.1
+
+###
+DELETE http://localhost:5000/subject/deleteSubject/697f91678e2de241c3d0e134 HTTP/1.1
+x-auth-token: 00095553d84c26a95e5de4d9685451fec0b67dceb73a9cd0222fba8a2c9addee
+
+###
+GET http://localhost:5000/paper HTTP/1.1
+
+###
+POST http://localhost:5000/paper/create HTTP/1.1
+Content-Type: application/json
+x-auth-token: a8343fc8e65e7845fbd0342f3c6502ce31b26296fc78cc2b2c08d56aea8c1200
+
+{
+  "title": "Python sem paper ", 
+  "subject": "698163d42d82c532c7462580", 
+  "examType": "Sem", 
+  "pdfUrl": "hello123"
+}
+
+###
+PUT http://localhost:5000/paper/update/6980b0170a6dafcffdd356f0 HTTP/1.1
+Content-Type: application/json
+x-auth-token: 00095553d84c26a95e5de4d9685451fec0b67dceb73a9cd0222fba8a2c9addee
+
+{
+  "title": "DMBS sem paper ", 
+  "examType": "Mid2"
+}
