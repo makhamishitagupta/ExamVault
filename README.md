@@ -1,4 +1,4 @@
-# 📚 ExamVault – Academic Resource Management Platform
+# ExamVault – Academic Resource Management Platform
 
 > A full-stack web application for managing and sharing academic resources such as exam papers and study notes.
 
