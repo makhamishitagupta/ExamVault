@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from "jsonwebtoken";
 
+const isDbReady = () => User.db?.readyState === 1;
+
 const buildAuthCookieOptions = () => {
     const isProd = process.env.NODE_ENV === "production";
     return {
@@ -40,6 +42,10 @@ export const getProfile = async (req, res) => {
 };
 
 export const registerUser = async (req, res) => {
+    if (!isDbReady()) {
+        return res.status(503).set('Retry-After', '5').json({ status: "error", message: "Server is warming up, please retry in a few seconds." });
+    }
+
     const { name, email, password, username } = req.body;
 
     if (!name || !email || !password || !username) {
@@ -65,6 +71,10 @@ export const registerUser = async (req, res) => {
 }
 
 export const loginUser = async (req, res) => {
+    if (!isDbReady()) {
+        return res.status(503).set('Retry-After', '5').json({ status: "error", message: "Server is warming up, please retry in a few seconds." });
+    }
+
     const { email, password } = req.body;
 
     if (!email || !password) {
