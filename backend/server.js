@@ -24,8 +24,22 @@ const PORT = process.env.PORT || 5000;
 mongoose.set("bufferCommands", false);
 mongoose.set("bufferTimeoutMS", 2000);
 
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://frontend-examvault.vercel.app',
+];
+
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS policy: origin '${origin}' not allowed`));
+        }
+    },
     credentials: true,
     optionsSuccessStatus: 200,
 }
