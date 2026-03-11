@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getAuthUser } from '../utils/auth';
+import { API_BASE, getAuthUser } from '../utils/auth';
 import { FiBell, FiSmile } from 'react-icons/fi';
 
 const Home = () => {
@@ -20,11 +20,18 @@ const Home = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("http://localhost:5000/announcements/viewAll");
+        const res = await fetch(`${API_BASE}/announcements/viewAll`);
         const data = await res.json();
-        setAnnouncements(data);
+        // Guard: server may return an error object (e.g. 500) instead of an array
+        if (Array.isArray(data)) {
+          setAnnouncements(data);
+        } else {
+          console.error("Unexpected announcements response:", data?.message || data);
+          setAnnouncements([]);
+        }
       } catch (error) {
         console.error("Failed to fetch announcements", error);
+        setAnnouncements([]);
       }
     };
 

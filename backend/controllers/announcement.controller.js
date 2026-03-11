@@ -24,6 +24,14 @@ export const createAnnouncement = async (req, res) => {
 };
 
 export const getAllAnnouncements = async (req, res) => {
+  // Guard against cold-start: if DB isn't ready yet, tell client to retry
+  const dbState = (await import('mongoose')).default.connection.readyState;
+  if (dbState !== 1) {
+    return res.status(503)
+      .set('Retry-After', '5')
+      .json({ message: "Database not ready yet, please retry in a few seconds." });
+  }
+
   try {
     const announcements = await Announcement.find()
       .sort({ createdAt: -1 }); // latest first
