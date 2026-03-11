@@ -1,21 +1,23 @@
 import Paper from "../models/papers.model.js";
 import Subject from "../models/subject.model.js";
 import axios from "axios";
-
-
 import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
 
+const isDbReady = () => Paper.db?.readyState === 1;
+
 export const allPapers = async (req, res) => {
-  const papers = await Paper.find({ isActive: true })
-    .populate("subject", "name code")
-    .populate("uploadedBy", "username");
-
-  res.status(200).json({
-    status: "ok",
-    papers
-  });
-
+  if (!isDbReady()) {
+    return res.status(503).set('Retry-After', '5').json({ status: "error", message: "Server warming up, please retry." });
+  }
+  try {
+    const papers = await Paper.find({ isActive: true })
+      .populate("subject", "name code")
+      .populate("uploadedBy", "username");
+    res.status(200).json({ status: "ok", papers });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
 }
 
 export const createPaper = async (req, res) => {

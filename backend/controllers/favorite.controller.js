@@ -1,13 +1,20 @@
 import Favorite from "../models/favorites.model.js";
 import Paper from "../models/papers.model.js";
-import Notes from "../models/notes.model.js"
+import Notes from "../models/notes.model.js";
 import mongoose from "mongoose";
 
-export const getMyFavorites = async (req, res) => {
-    const favorites = await Favorite.find({ user: req.user._id })
-      .populate("item");
+const isDbReady = () => Favorite.db?.readyState === 1;
 
-    res.status(200).json({status: "ok", favorites});
+export const getMyFavorites = async (req, res) => {
+    if (!isDbReady()) {
+      return res.status(503).set('Retry-After', '5').json({ status: "error", favorites: [], message: "Server warming up, please retry." });
+    }
+    try {
+      const favorites = await Favorite.find({ user: req.user._id }).populate("item");
+      res.status(200).json({ status: "ok", favorites });
+    } catch (err) {
+      res.status(500).json({ status: "error", favorites: [], message: err.message });
+    }
 };
 
 export const toggleFavorite = async (req, res) => {
