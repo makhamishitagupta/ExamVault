@@ -113,3 +113,30 @@ export const consumePendingAction = () => {
   }
   return action;
 };
+
+/**
+ * Toggle like on a paper or notes resource.
+ * @param {{ id: string, resourceType: 'paper' | 'notes' }} params
+ * @returns {Promise<{ ok: boolean, liked?: boolean, likesCount?: number, needsAuth?: boolean }>}
+ */
+export const toggleLike = async ({ id, resourceType }) => {
+  const path = resourceType === "paper" ? `/paper/like/${id}` : `/notes/like/${id}`;
+  const res = await apiFetch(path, { method: "POST" });
+
+  if (res.status === 401) {
+    return { ok: false, needsAuth: true };
+  }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message || "Failed to toggle like");
+  }
+
+  const data = await res.json();
+  return {
+    ok: true,
+    liked: data.liked,
+    likesCount: data.likesCount,
+    needsAuth: false,
+  };
+};

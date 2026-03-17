@@ -41,8 +41,8 @@ const paperSchema = new mongoose.Schema({
     },
 
     likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     }],
 
     isActive: {

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { API_BASE, isAuthenticated } from '../utils/auth';
-
 import { useForm } from "react-hook-form";
+import { FiUser, FiAtSign, FiMail, FiLock } from 'react-icons/fi';
 const Register = () => {
   const navigate = useNavigate();
   const { register: registerForm, handleSubmit: handleSubmitForm, formState: { errors } } = useForm();
@@ -40,23 +40,29 @@ const Register = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated background gradients */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
+        <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl p-8">
           {/* Logo and Title */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">EV</span>
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-2xl">E</span>
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">ExamVault</h2>
-            <p className="mt-2 text-gray-600">Create your account</p>
+            <h2 className="text-3xl font-bold text-white">ExamVault</h2>
+            <p className="mt-2 text-gray-400">Create your account</p>
           </div>
 
           {/* Error Message */}
           {errors.root?.message && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="mb-4 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm">
               {errors.root.message}
             </div>
           )}
@@ -65,95 +71,107 @@ const Register = () => {
           <form onSubmit={handleSubmitForm(onSubmit, handleError)} className="space-y-4">
             {/* Full Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name *
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                Full Name
               </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                {...registerForm("name", { required: true })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your full name"
-              />
+              <div className="relative">
+                <FiUser className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  {...registerForm("name", { required: true })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
+                  placeholder="Enter your full name"
+                />
+              </div>
               {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
               )}
             </div>
 
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username *
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                Username
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                {...registerForm("username", { required: true })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your username"
-              />
+              <div className="relative">
+                <FiAtSign className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  {...registerForm("username", { required: true })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
+                  placeholder="Choose a username"
+                />
+              </div>
               {errors.username && (
-                <p className="text-red-500 text-sm">{errors.username.message}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.username.message}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email *
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                Email
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                {...registerForm("email", { required: true })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
-              />
+              <div className="relative">
+                <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  {...registerForm("email", { required: true })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
+                  placeholder="Enter your email"
+                />
+              </div>
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password *
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                {...registerForm("password", { required: true })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Create a password"
-              />
+              <div className="relative">
+                <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  {...registerForm("password", { required: true })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
+                  placeholder="Create a password"
+                />
+              </div>
               {errors.password && (
-                <p className="text-red-500 text-sm">{errors.password.message}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
               )}
             </div>
 
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium transition-colors hover:bg-blue-700"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 mt-6"
             >
-              Register
+              Create Account
             </button>
           </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                Login
+              <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                Sign In
               </Link>
             </p>
           </div>

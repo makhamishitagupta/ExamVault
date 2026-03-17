@@ -11,15 +11,21 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadProfile = async () => {
-      const authUser = await getAuthUser();
-      if (!authUser) {
-        navigate("/login");
-      } else {
-        setUser(authUser);
-        setEditData({ name: authUser.name, username: authUser.username });
+      try {
+        setLoading(true);
+        const authUser = await getAuthUser();
+        if (!authUser) {
+          navigate("/login");
+        } else {
+          setUser(authUser);
+          setEditData({ name: authUser.name, username: authUser.username });
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -90,95 +96,127 @@ const Profile = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block">
+            <div className="w-12 h-12 border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+          <p className="mt-4 text-gray-400">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) return null;
 
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black py-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Error Message */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex justify-between items-center">
+          <div className="mb-6 bg-red-500/20 border border-red-500/50 text-red-200 px-6 py-4 rounded-xl flex justify-between items-center animate-fadeIn">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
+            <button onClick={() => setError(null)} className="text-red-200 hover:text-red-100">
               <FiX className="w-5 h-5" />
             </button>
           </div>
         )}
 
+        {/* Success Message */}
         {success && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex justify-between items-center">
+          <div className="mb-6 bg-green-500/20 border border-green-500/50 text-green-200 px-6 py-4 rounded-xl flex justify-between items-center animate-fadeIn">
             <span>{success}</span>
-            <button onClick={() => setSuccess(null)} className="text-green-700 hover:text-green-900">
+            <button onClick={() => setSuccess(null)} className="text-green-200 hover:text-green-100">
               <FiX className="w-5 h-5" />
             </button>
           </div>
         )}
 
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <FiUser className="w-7 h-7 text-blue-600" />
-            Profile
-          </h1>
-          <div className="flex space-x-2">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FiUser className="w-6 h-6 text-white" />
+              </div>
+              Profile
+            </h1>
+          </div>
+          <div className="flex gap-3">
             {!isEditMode && (
               <button
                 onClick={() => setIsEditMode(true)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
+                className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                <span>Edit</span>
+                Edit
               </button>
             )}
             <button
               onClick={handleLogout}
-              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center space-x-2"
+              className="px-6 py-3 rounded-full border-2 border-red-500/50 text-red-300 font-semibold hover:bg-red-500/10 transition-all duration-300 flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              <span>Logout</span>
+              Logout
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
-          <div className="flex items-center space-x-6 mb-8">
-            <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-3xl font-bold">
-                {user.name.charAt(0)}
+        {/* Profile Card */}
+        <div className="bg-gray-900/50 border-2 border-gray-800 rounded-2xl p-8 animate-fadeIn">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-8">
+            {/* Avatar */}
+            <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <span className="text-white text-5xl font-bold">
+                {user.name.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div className="flex-1">
+
+            {/* User Info or Edit Form */}
+            <div className="flex-1 w-full">
               {isEditMode ? (
                 <div className="space-y-4">
+                  {/* Name Input */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                      Full Name
+                    </label>
                     <input
                       type="text"
                       name="name"
                       value={editData.name}
                       onChange={handleEditChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
                       placeholder="Your name"
                     />
                   </div>
+
+                  {/* Username Input */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wider">
+                      Username
+                    </label>
                     <input
                       type="text"
                       name="username"
                       value={editData.username}
                       onChange={handleEditChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500"
                       placeholder="Your username"
                     />
                   </div>
-                  <div className="flex space-x-3">
+
+                  {/* Edit Buttons */}
+                  <div className="flex gap-3 pt-2">
                     <button
                       onClick={handleUpdateProfile}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      className="px-6 py-3 rounded-full bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold hover:shadow-lg hover:shadow-green-500/50 hover:scale-105 transition-all duration-300"
                     >
                       Save Changes
                     </button>
@@ -187,7 +225,7 @@ const Profile = () => {
                         setIsEditMode(false);
                         setEditData({ name: user.name, username: user.username });
                       }}
-                      className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                      className="px-6 py-3 rounded-full border-2 border-gray-700 text-gray-300 font-semibold hover:border-gray-600 hover:text-gray-200 transition-all duration-300"
                     >
                       Cancel
                     </button>
@@ -195,23 +233,26 @@ const Profile = () => {
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-                  <p className="text-gray-600">{user.username}</p>
-                  <p className="text-gray-600">{user.email}</p>
-                  <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full capitalize">
-                    {user.role}
-                  </span>
+                  <h2 className="text-3xl font-bold text-white mb-1">{user.name}</h2>
+                  <p className="text-gray-400 text-lg mb-3">@{user.username}</p>
+                  <p className="text-gray-300 text-sm mb-4">{user.email}</p>
+                  <div className="flex gap-2">
+                    <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/50 text-blue-300 text-sm rounded-full capitalize font-medium">
+                      {user.role}
+                    </span>
+                  </div>
                 </>
               )}
             </div>
           </div>
 
+          {/* Delete Button */}
           {!isEditMode && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-8 border-t border-gray-800">
               <button
                 onClick={handleDeleteProfile}
                 disabled={isDeleting}
-                className="bg-red-100 text-red-700 px-6 py-2 rounded-lg hover:bg-red-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 rounded-full border-2 border-red-500/50 text-red-300 font-semibold hover:bg-red-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeleting ? 'Deleting...' : 'Delete Profile'}
               </button>
@@ -224,4 +265,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

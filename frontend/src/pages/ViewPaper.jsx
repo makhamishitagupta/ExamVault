@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
-import { API_BASE, apiFetch, consumePendingAction, setPendingAction } from '../utils/auth';
+import { API_BASE, apiFetch, consumePendingAction, setPendingAction, toggleLike } from '../utils/auth';
 import { FiMessageCircle } from 'react-icons/fi';
 
 const ViewPaper = () => {
@@ -14,8 +14,13 @@ const ViewPaper = () => {
 
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [liking, setLiking] = useState(false);
+  const [shareMessage, setShareMessage] = useState(null);
 
   const itemType = isPaperRoute ? 'Paper' : 'Notes';
+  const resourceType = isPaperRoute ? 'paper' : 'notes';
 
   const redirectToLoginWithAction = useCallback((action) => {
     setPendingAction({
@@ -74,6 +79,51 @@ const ViewPaper = () => {
     setNewComment("");
   }, [id, itemType, redirectToLoginWithAction]);
 
+  const runLikeToggle = useCallback(async () => {
+    if (liking) return;
+    setLiking(true);
+    try {
+      const result = await toggleLike({ id, resourceType });
+      if (result.needsAuth) {
+        redirectToLoginWithAction({ type: "like", itemId: id, resourceType, itemType });
+        return;
+      }
+      if (result.ok && result.liked !== undefined) {
+        setLiked(result.liked);
+        if (typeof result.likesCount === "number") setLikeCount(result.likesCount);
+      }
+    } catch (err) {
+      console.error("Like error", err);
+    } finally {
+      setLiking(false);
+    }
+  }, [id, resourceType, itemType, redirectToLoginWithAction, liking]);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/${resourceType}/${id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: resource?.title || "Resource",
+          url,
+          text: resource?.title || "Check out this resource",
+        });
+        setShareMessage("Shared!");
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareMessage("Link copied!");
+      }
+    } catch (err) {
+      if (err?.name !== "AbortError") {
+        try {
+          await navigator.clipboard.writeText(url);
+          setShareMessage("Link copied!");
+        } catch {
+          setShareMessage("Copy failed");
+        }
+      }
+    }
+  }, [id, resource?.title, resourceType]);
 
   useEffect(() => {
     const fetchResource = async () => {
@@ -99,6 +149,36 @@ const ViewPaper = () => {
 
     fetchResource();
   }, [id, isPaperRoute]);
+
+  useEffect(() => {
+    if (!resource) return;
+    setLikeCount(resource?.likes?.length ?? 0);
+    const uid = (() => {
+      try {
+        const u = localStorage.getItem("user");
+        if (!u) return null;
+        const parsed = JSON.parse(u);
+        return parsed?._id ?? parsed?.id ?? null;
+      } catch { return null; }
+    })();
+    if (uid && Array.isArray(resource?.likes)) {
+      const idStr = String(uid);
+      const isLikedByUser = resource.likes.some((lid) => {
+        const lidStr = lid != null ? (lid._id != null ? String(lid._id) : String(lid)) : "";
+        return lidStr === idStr;
+      });
+      setLiked(isLikedByUser);
+    } else {
+      setLiked(Boolean(resource?.isLiked));
+    }
+  }, [resource?._id, resource?.likes, resource?.isLiked]);
+
+  useEffect(() => {
+    if (shareMessage) {
+      const t = setTimeout(() => setShareMessage(null), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [shareMessage]);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -141,13 +221,21 @@ const ViewPaper = () => {
       return;
     }
 
+    if (pending.type === "like" && pending.itemId === id) {
+      runLikeToggle();
+      return;
+    }
+
     setPendingAction(pending);
-  }, [id, location.pathname, runDownload, runPostComment]);
+  }, [id, location.pathname, runDownload, runPostComment, runLikeToggle]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading resource...</p>
+        </div>
       </div>
     );
   }
@@ -168,38 +256,44 @@ const ViewPaper = () => {
 
   if (!loading && !resource) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col space-y-4">
-        <p className="text-lg font-semibold text-gray-800">
-          Resource not found.
-        </p>
-        <button
-          onClick={() => navigate(`/${type}`)}
-          className="text-blue-600 hover:text-blue-700"
-        >
-          Back to {type === 'papers' ? 'Papers' : 'Notes'}
-        </button>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center flex-col space-y-4">
+        <div className="text-center">
+          <svg className="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          <p className="text-xl font-semibold text-white mb-2">Resource not found</p>
+          <p className="text-gray-400 mb-6">The resource you're looking for doesn't exist</p>
+          <button
+            onClick={() => navigate(`/${type}`)}
+            className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
+          >
+            Back to {type === 'papers' ? 'Papers' : 'Notes'}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black py-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
         <button
           onClick={() => navigate(`/${type}`)}
-          className="mb-4 text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+          className="mb-8 px-4 py-2 border-2 border-gray-700 text-gray-300 rounded-full hover:border-blue-500 hover:text-blue-300 transition-all duration-300 flex items-center gap-2 font-medium"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span>Back to {type === 'papers' ? 'Papers' : 'Notes'}</span>
+          Back to {type === 'papers' ? 'Papers' : 'Notes'}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* PDF Preview Area */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="aspect-4/3 bg-gray-100 rounded-lg overflow-hidden mb-4">
+            {/* PDF Preview Card */}
+            <div className="bg-gray-900/50 border-2 border-gray-800 rounded-2xl p-6 mb-6">
+              <div className="aspect-4/3 bg-black/50 border border-gray-800 rounded-xl overflow-hidden mb-4">
                 {resource ? (
                   <iframe
                     title={resource?.title || "PDF Preview"}
@@ -214,56 +308,66 @@ const ViewPaper = () => {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center p-8">
                     <div className="text-center">
-                      <svg className="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-16 h-16 text-gray-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
-                      <p className="text-gray-500">PDF Preview</p>
-                      <p className="text-sm text-gray-400 mt-1">Preview not available</p>
+                      <p className="text-gray-400">PDF Preview Not Available</p>
+                      <p className="text-sm text-gray-500 mt-1">Download to view the full document</p>
                     </div>
                   </div>
                 )}
               </div>
-              <button onClick={handleDownload} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button 
+                onClick={handleDownload} 
+                className="w-full px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300"
+              >
                 Download PDF
               </button>
             </div>
 
             {/* Discussion Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiMessageCircle className="w-5 h-5 text-blue-600" />
+            <div className="bg-gray-900/50 border-2 border-gray-800 rounded-2xl p-6">
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-full flex items-center justify-center">
+                  <FiMessageCircle className="w-4 h-4 text-blue-400" />
+                </div>
                 Discussion
               </h3>
 
-              {comments.length === 0 && (
-                <p className="text-gray-500 text-center py-8">No comments yet. Be the first to comment!</p>
-              )}
-
-              {comments.length > 0 && (
+              {/* Comments List */}
+              {comments.length === 0 ? (
+                <p className="text-gray-400 text-center py-8">No comments yet. Be the first to share your thoughts!</p>
+              ) : (
                 <div className="space-y-4 mb-6">
                   {comments.map((comment, idx) => (
-                    <div key={comment._id || comment.id || idx} className="border-b border-gray-200 pb-4 last:border-0">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-semibold text-gray-900">{comment.user.username}</span>
-                        <span className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                    <div key={comment._id || comment.id || idx} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-semibold">{(comment.user?.username || comment.user?.name || "?").charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold text-white">{comment.user?.username || comment.user?.name || "Anonymous"}</span>
+                          <span className="text-xs text-gray-500 ml-2">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                      <p className="text-gray-700">{comment.content}</p>
+                      <p className="text-gray-300">{comment.content}</p>
                     </div>
                   ))}
                 </div>
               )}
 
+              {/* Comment Input */}
               <div className="space-y-3">
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
+                  placeholder="Add a thoughtful comment..."
                   rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none transition-all text-white placeholder-gray-500 resize-none"
                 />
                 <button
                   onClick={handlePostComment}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300"
                 >
                   Post Comment
                 </button>
@@ -271,62 +375,74 @@ const ViewPaper = () => {
             </div>
           </div>
 
-          {/* Paper Details Panel */}
+          {/* Resource Details Panel */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <div className="bg-gray-900/50 border-2 border-gray-800 rounded-2xl p-6 sticky top-28">
+              <h2 className="text-2xl font-bold text-white mb-6">
                 {resource?.title || resource?.subject?.name || "Resource"}
               </h2>
 
-              <div className="space-y-4 mb-6">
-                {/* <div>
-                  <span className="text-sm text-gray-500">Year</span>
-                  <p className="font-medium text-gray-900">{resource.year}</p>
-                </div> */}
+              {/* Details */}
+              <div className="space-y-4 mb-6 pb-6 border-b border-gray-800">
                 <div>
-                  <span className="text-sm text-gray-500">Subject Code</span>
-                  <p className="font-medium text-gray-900">
+                  <span className="text-sm text-gray-500 uppercase tracking-wider">Subject Code</span>
+                  <p className="font-semibold text-gray-200 mt-1">
                     {resource?.subject?.code || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Exam Type</span>
-                  <p className="font-medium text-gray-900">
+                  <span className="text-sm text-gray-500 uppercase tracking-wider">Exam Type</span>
+                  <p className="font-semibold text-gray-200 mt-1">
                     {resource?.examType || (resource?.unit != null ? `Unit ${resource.unit}` : "N/A")}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
-                <div className="flex items-center space-x-1 text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span className="text-sm">
-                    {resource?.likes?.length ?? 0} likes
-                  </span>
+              {/* Stats */}
+              <div className="space-y-3 mb-6 pb-6 border-b border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <svg className="w-5 h-5" fill={liked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span className="text-sm">{likeCount} Likes</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1 text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span className="text-sm">
-                    {resource?.downloadCount ?? 0} downloads
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span className="text-sm">{resource?.downloadCount ?? 0} Downloads</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex space-x-2">
-                <button className="flex-1 bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors">
-                  <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={runLikeToggle}
+                  disabled={liking}
+                  className={`flex-1 p-3 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${liked ? "border-red-500/50 text-red-400 bg-red-500/10" : "border-gray-700 text-gray-400 hover:border-red-500/50 hover:text-red-300 hover:bg-red-500/10"} ${liking ? "opacity-60 cursor-not-allowed" : ""}`}
+                  title="Like"
+                >
+                  <svg className="w-5 h-5" fill={liked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </button>
-                <button className="flex-1 bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors">
-                  <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 p-3 rounded-full border-2 border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300 transition-all duration-300 flex items-center justify-center relative"
+                  title="Share"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
+                  {shareMessage && (
+                    <span className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-gray-700 text-white text-xs whitespace-nowrap">
+                      {shareMessage}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>

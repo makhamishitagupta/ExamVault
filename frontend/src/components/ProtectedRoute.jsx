@@ -15,7 +15,16 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }, []);
 
   if (user === undefined) {
-    return <div>Checking authentication...</div>;
+    return (
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block">
+            <div className="w-12 h-12 border-4 border-gray-300 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {

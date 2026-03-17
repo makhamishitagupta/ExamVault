@@ -10,7 +10,13 @@ export const getMyFavorites = async (req, res) => {
       return res.status(503).set('Retry-After', '5').json({ status: "error", favorites: [], message: "Server warming up, please retry." });
     }
     try {
-      const favorites = await Favorite.find({ user: req.user._id }).populate("item");
+      const favorites = await Favorite.find({ user: req.user._id }).populate({
+        path: "item",
+        populate: [
+          { path: "subject", select: "name code" },
+          { path: "uploadedBy", select: "username name" }
+        ]
+      });
       res.status(200).json({ status: "ok", favorites });
     } catch (err) {
       res.status(500).json({ status: "error", favorites: [], message: err.message });
