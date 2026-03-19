@@ -11,6 +11,17 @@ const ViewPaper = () => {
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+
+  const currentUserId = (() => {
+    try {
+      const u = localStorage.getItem("user");
+      if (!u) return null;
+      const parsed = JSON.parse(u);
+      return parsed?._id ?? parsed?.id ?? null;
+    } catch { return null; }
+  })();
 
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,9 +86,28 @@ const ViewPaper = () => {
     }
 
     const data = await res.json();
-    setComments(prev => [data.comment, ...prev]);
+
+    const newCommentObj = { 
+      ...data.comment, 
+      user: (() => {
+        try {
+          const uStr = localStorage.getItem("user");
+          if (uStr) {
+            const parsed = JSON.parse(uStr);
+            return {
+              _id: currentUserId,
+              name: parsed.name,
+              username: parsed.username
+            };
+          }
+        } catch {}
+        return { _id: currentUserId };
+      })() 
+    };
+
+    setComments(prev => [newCommentObj, ...prev]);
     setNewComment("");
-  }, [id, itemType, redirectToLoginWithAction]);
+  }, [id, itemType, redirectToLoginWithAction, currentUserId]);
 
   const runLikeToggle = useCallback(async () => {
     if (liking) return;
@@ -153,14 +183,7 @@ const ViewPaper = () => {
   useEffect(() => {
     if (!resource) return;
     setLikeCount(resource?.likes?.length ?? 0);
-    const uid = (() => {
-      try {
-        const u = localStorage.getItem("user");
-        if (!u) return null;
-        const parsed = JSON.parse(u);
-        return parsed?._id ?? parsed?.id ?? null;
-      } catch { return null; }
-    })();
+    const uid = currentUserId;
     if (uid && Array.isArray(resource?.likes)) {
       const idStr = String(uid);
       const isLikedByUser = resource.likes.some((lid) => {
@@ -248,6 +271,57 @@ const ViewPaper = () => {
     } catch (err) {
       console.error("Failed to post comment", err);
     }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      const res = await apiFetch(`/comments/${itemType}/${id}/${commentId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setComments(prev => prev.filter(c => (c._id || c.id) !== commentId));
+      } else {
+        throw new Error("Failed to delete comment");
+      }
+    } catch (err) {
+      console.error("Delete error", err);
+      alert("Failed to delete comment");
+    }
+  };
+
+  const startEditComment = (comment) => {
+    setEditingCommentId(comment._id || comment.id);
+    setEditContent(comment.content);
+  };
+
+  const handleSaveEditComment = async (commentId) => {
+    if (!editContent.trim()) return;
+    try {
+      const res = await apiFetch(`/comments/${itemType}/${id}/${commentId}`, {
+        method: 'PUT',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editContent })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setComments(prev => prev.map(c => 
+          (c._id || c.id) === commentId ? { ...c, content: data.comment.content } : c
+        ));
+        setEditingCommentId(null);
+        setEditContent("");
+      } else {
+        throw new Error("Failed to update comment");
+      }
+    } catch (err) {
+      console.error("Edit error", err);
+      alert("Failed to update comment");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditContent("");
   };
 
   const handleDownload = async () => {
@@ -339,20 +413,61 @@ const ViewPaper = () => {
                 <p className="text-gray-400 text-center py-8">No comments yet. Be the first to share your thoughts!</p>
               ) : (
                 <div className="space-y-4 mb-6">
-                  {comments.map((comment, idx) => (
-                    <div key={comment._id || comment.id || idx} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-xs font-semibold">{(comment.user?.username || comment.user?.name || "?").charAt(0).toUpperCase()}</span>
+                  {comments.map((comment, idx) => {
+                    const commentId = comment._id || comment.id || idx;
+                    const commentUserId = comment.user?._id || comment.user;
+                    const isOwner = String(currentUserId) === String(commentUserId);
+                    const isEditing = editingCommentId === commentId;
+                    
+                    return (
+                    <div key={commentId} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-semibold">{(comment.user?.username || comment.user?.name || "?").charAt(0).toUpperCase()}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-white">{comment.user?.username || comment.user?.name || "Anonymous"}</span>
+                            <span className="text-xs text-gray-500 ml-2">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-semibold text-white">{comment.user?.username || comment.user?.name || "Anonymous"}</span>
-                          <span className="text-xs text-gray-500 ml-2">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                        </div>
+                        {isOwner && currentUserId && (
+                          <div className="flex gap-2 text-sm">
+                            <button
+                              onClick={() => isEditing ? handleCancelEdit() : startEditComment(comment)}
+                              className="text-gray-400 hover:text-blue-400 transition-colors"
+                            >
+                              {isEditing ? "Cancel" : "Edit"}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteComment(commentId)}
+                              className="text-gray-400 hover:text-red-400 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-gray-300">{comment.content}</p>
+                      {isEditing ? (
+                        <div className="mt-3">
+                          <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            rows="2"
+                            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-all text-gray-200 placeholder-gray-500 resize-none text-sm mb-2"
+                          />
+                          <button
+                            onClick={() => handleSaveEditComment(commentId)}
+                            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm transition-colors"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-gray-300">{comment.content}</p>
+                      )}
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
 

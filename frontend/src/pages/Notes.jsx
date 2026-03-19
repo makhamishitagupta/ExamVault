@@ -10,7 +10,8 @@ const Notes = () => {
   const [filters, setFilters] = useState({
     year: '',
     subject: '',
-    unit: ''
+    unit: '',
+    sortBy: ''
   });
 
   const [favoriteIds, setFavoriteIds] = useState(new Set());
@@ -92,6 +93,16 @@ const Notes = () => {
       !filters.unit || note.unit?.toString() === filters.unit;
 
     return matchesSearch && matchesSubject && matchesYear && matchesUnit;
+  }).sort((a, b) => {
+    if (filters.sortBy === 'newest') {
+      return (b._id || "").localeCompare(a._id || "");
+    }
+    if (filters.sortBy === 'popular') {
+      const scoreA = (a.likes?.length || 0) + (a.downloadCount || 0);
+      const scoreB = (b.likes?.length || 0) + (b.downloadCount || 0);
+      return scoreB - scoreA;
+    }
+    return 0; // Default order
   });
 
   const handleFilterChange = (key, value) => {
@@ -103,6 +114,7 @@ const Notes = () => {
       year: '',
       subject: '',
       unit: '',
+      sortBy: '',
     });
     setSearchQuery('');
   };
@@ -212,6 +224,21 @@ const Notes = () => {
                 {years.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
+                Sort By
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white"
+              >
+                <option value="">Recommended</option>
+                <option value="newest">Newest</option>
+                <option value="popular">Popular</option>
               </select>
             </div>
           </div>

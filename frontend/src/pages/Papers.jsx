@@ -10,7 +10,8 @@ const Papers = () => {
   const [filters, setFilters] = useState({
     year: '',
     subject: '',
-    examType: ''
+    examType: '',
+    sortBy: ''
   });
   const [favoriteIds, setFavoriteIds] = useState(new Set());
 
@@ -88,6 +89,16 @@ const Papers = () => {
       !filters.examType || paper.examType === filters.examType;
 
     return matchesSearch && matchesSubject && matchesExamType;
+  }).sort((a, b) => {
+    if (filters.sortBy === 'newest') {
+      return (b._id || "").localeCompare(a._id || "");
+    }
+    if (filters.sortBy === 'popular') {
+      const scoreA = (a.likes?.length || 0) + (a.downloadCount || 0);
+      const scoreB = (b.likes?.length || 0) + (b.downloadCount || 0);
+      return scoreB - scoreA;
+    }
+    return 0; // Default order
   });
 
   const handleFilterChange = (key, value) => {
@@ -99,6 +110,7 @@ const Papers = () => {
       year: '',
       subject: '',
       examType: '',
+      sortBy: '',
     });
     setSearchQuery('');
   };
@@ -160,7 +172,7 @@ const Papers = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
                 Subject
@@ -208,6 +220,21 @@ const Papers = () => {
                 {years.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
+                Sort By
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white"
+              >
+                <option value="">Recommended</option>
+                <option value="newest">Newest</option>
+                <option value="popular">Popular</option>
               </select>
             </div>
           </div>
