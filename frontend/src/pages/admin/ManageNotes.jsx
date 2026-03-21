@@ -71,111 +71,111 @@ const ManageNotes = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading notes...</div>
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-8 flex items-center justify-center min-h-[220px]">
+        <div className="text-lg text-gray-300">Loading notes...</div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <FiBookOpen className="w-7 h-7 text-blue-600" />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          <FiBookOpen className="w-7 h-7 text-blue-400" />
           Manage Notes
         </h1>
         <Link
           to="/admin/upload-note"
-          className="bg-blue-600 !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="inline-flex items-center justify-center bg-blue-600 !text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-medium"
         >
           + Upload New Note
         </Link>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-          <button onClick={() => setError('')} className="float-right font-bold">
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 text-red-300 px-4 py-3 flex items-start justify-between gap-4">
+          <span>{error}</span>
+          <button onClick={() => setError('')} className="font-bold text-red-300 hover:text-red-200">
             ×
           </button>
         </div>
       )}
 
-      <div className="mb-6">
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-4">
         <input
           type="text"
           placeholder="Search by title, subject, unit, or year..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 bg-black/40 border border-gray-700 text-gray-100 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 overflow-hidden">
         {filteredNotes.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-10 text-center text-gray-400">
             {searchQuery ? 'No notes found matching your search.' : 'No notes available.'}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-black/40 border-b border-gray-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Title
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Subject
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Unit
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Year
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Downloads
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-800">
                 {filteredNotes.map((note) => (
-                  <tr key={note._id} className="hover:bg-gray-50">
+                  <tr key={note._id} className="hover:bg-black/30 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900 max-w-xs truncate" title={note.title}>
+                      <div className="text-sm font-medium text-gray-100 max-w-xs truncate" title={note.title}>
                         {note.title || `${note.subject?.name} - Unit ${note.unit}`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-300">
                         {note.subject?.name} ({note.subject?.code})
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                      <span className="px-2.5 py-1 text-xs font-medium bg-emerald-500/15 text-emerald-300 rounded-full border border-emerald-500/30">
                         Unit {note.unit}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                       {note.year}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                       {note.downloadCount || 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link
                           to={`/admin/edit-note/${note._id}`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-blue-400 hover:text-blue-300"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() => setDeleteConfirm(note._id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-400 hover:text-red-300"
                         >
                           Delete
                         </button>
@@ -190,22 +190,22 @@ const ManageNotes = () => {
       </div>
 
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 mb-6">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="rounded-2xl border border-gray-800 bg-gray-950 p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-white mb-4">Confirm Delete</h3>
+            <p className="text-gray-300 mb-6">
               Are you sure you want to delete this note? This action cannot be undone.
             </p>
             <div className="flex space-x-4">
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-colors font-medium"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="flex-1 bg-gray-800 text-gray-200 px-4 py-2 rounded-xl hover:bg-gray-700 transition-colors font-medium"
               >
                 Cancel
               </button>

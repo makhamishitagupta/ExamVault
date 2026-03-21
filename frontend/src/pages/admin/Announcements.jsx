@@ -165,28 +165,28 @@ const Announcements = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex justify-between items-center">
+        <div className="p-4 rounded-xl border border-red-500/40 bg-red-500/10 text-red-300 flex justify-between items-center">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
+          <button onClick={() => setError(null)} className="text-red-300 hover:text-red-200">
             <FiX className="w-5 h-5" />
           </button>
         </div>
       )}
 
       {successMessage && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex justify-between items-center">
+        <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 flex justify-between items-center">
           <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="text-green-700 hover:text-green-900">
+          <button onClick={() => setSuccessMessage(null)} className="text-emerald-300 hover:text-emerald-200">
             <FiX className="w-5 h-5" />
           </button>
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <FiBell className="w-7 h-7 text-blue-600" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          <FiBell className="w-7 h-7 text-blue-400" />
           Announcements
         </h1>
         <button
@@ -195,40 +195,40 @@ const Announcements = () => {
             if (showForm) handleCancel();
           }}
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {showForm ? 'Cancel' : 'Create Announcement'}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
+          <h2 className="text-xl font-bold text-white mb-4">
             {editingId ? 'Edit Announcement' : 'Create New Announcement'}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Title *
               </label>
               <input
                 type="text"
                 {...register('title', { required: 'Title is required' })}
                 disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 bg-black/40 border border-gray-700 text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
                 placeholder="Enter announcement title"
               />
               {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Message *
               </label>
               <textarea
                 {...register('content', { required: 'Message is required' })}
                 disabled={loading}
                 rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 bg-black/40 border border-gray-700 text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                 placeholder="Enter announcement message"
               />
               {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content.message}</p>}
@@ -239,16 +239,16 @@ const Announcements = () => {
                   type="checkbox"
                   {...register('important')}
                   disabled={loading}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-900 border-gray-700"
                 />
-                <span className="text-sm font-medium text-gray-700">Mark as Important</span>
+                <span className="text-sm font-medium text-gray-300">Mark as Important</span>
               </label>
             </div>
             <div className="flex space-x-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Processing...' : editingId ? 'Update' : 'Create'} Announcement
               </button>
@@ -256,7 +256,7 @@ const Announcements = () => {
                 type="button"
                 onClick={handleCancel}
                 disabled={loading}
-                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gray-800 text-gray-200 px-6 py-2 rounded-xl hover:bg-gray-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -266,26 +266,28 @@ const Announcements = () => {
       )}
 
       {loading && announcements.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">Loading announcements...</p>
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 text-center py-12">
+          <p className="text-gray-400">Loading announcements...</p>
         </div>
       ) : announcements.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No announcements yet</p>
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 text-center py-12">
+          <p className="text-gray-400">No announcements yet</p>
         </div>
       ) : (
         <div className="space-y-4">
           {announcements.map((announcement) => (
             <div
               key={announcement._id}
-              className={`bg-white rounded-lg shadow-sm p-6 border-l-4 ${
-                announcement.important ? 'border-blue-600 bg-blue-50' : 'border-gray-300'
+              className={`rounded-2xl border p-6 ${
+                announcement.important
+                  ? 'border-blue-500/40 bg-blue-500/10'
+                  : 'border-gray-800 bg-gray-900/70'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-white">
                       {announcement.title}
                     </h3>
                     {announcement.important && (
@@ -294,7 +296,7 @@ const Announcements = () => {
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-600 mb-2">{announcement.content}</p>
+                  <p className="text-gray-300 mb-2">{announcement.content}</p>
                   <p className="text-sm text-gray-500">
                     {new Date(announcement.createdAt).toLocaleDateString()}
                   </p>
@@ -303,7 +305,7 @@ const Announcements = () => {
                   <button
                     onClick={() => handleEdit(announcement)}
                     disabled={loading}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Edit"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -313,7 +315,7 @@ const Announcements = () => {
                   <button
                     onClick={() => handleDelete(announcement._id)}
                     disabled={loading}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Delete"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

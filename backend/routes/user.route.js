@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser, updateProfile, getProfile, createAdmin, deleteProfile } from "../controllers/user.controller.js";
+import { registerUser, loginUser, googleSignIn, logoutUser, updateProfile, getProfile, createAdmin, deleteProfile } from "../controllers/user.controller.js";
 import { auth, adminOnly } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 router.route('/register').post(registerUser);
 router.route('/login').post(loginUser);
+router.route('/google-signin').post(googleSignIn);
 router.route('/logout').post(logoutUser);
 router.route('/update-profile').post(auth, updateProfile);
 router.route('/delete-profile').delete(auth, deleteProfile);

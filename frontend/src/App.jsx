@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -11,6 +12,7 @@ import ViewPaper from './pages/ViewPaper';
 // import Discussions from './pages/Discussions';
 import Favorites from './pages/Favorites';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminHome from './pages/admin/AdminHome';
 import UploadPaper from './pages/admin/UploadPaper';
@@ -27,6 +29,16 @@ import Analytics from './pages/admin/Analytics';
 // import CreateAdmin from './pages/admin/CreateAdmin';
 import './App.css';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -34,6 +46,7 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <ScrollToTop />
       {!isAdminRoute && !isAuthRoute && <Navbar />}
       <main className="grow">
         <Routes>
@@ -97,6 +110,8 @@ function AppContent() {
             <Route path="analytics" element={<Analytics />} />
             {/* <Route path="create-admin" element={<CreateAdmin />} /> */}
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       {!isAdminRoute && !isAuthRoute && <Footer />}

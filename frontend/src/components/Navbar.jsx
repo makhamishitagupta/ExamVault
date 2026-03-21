@@ -55,6 +55,12 @@ const Navbar = () => {
     ]
     : [];
 
+  const adminLinks = user && user.role === 'admin'
+    ? [
+      { path: '/admin', label: 'Admin Dashboard' }
+    ]
+    : [];
+
   return (
     <nav className="bg-black border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -69,7 +75,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {[...navLinks, ...studentLinks].map((link) => (
+            {[...navLinks, ...studentLinks, ...adminLinks].map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -169,7 +175,7 @@ const Navbar = () => {
       {showMobileMenu && (
         <div className="md:hidden bg-gray-950 border-t border-gray-800">
           <div className="px-4 pt-4 pb-6 space-y-3">
-            {[...navLinks, ...studentLinks].map((link) => (
+            {[...navLinks, ...studentLinks, ...adminLinks].map((link) => (
               <Link
                 key={link.path}
                 to={link.path}

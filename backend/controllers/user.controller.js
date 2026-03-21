@@ -3,6 +3,7 @@ import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from 'google-auth-library';
 
 const isDbReady = () => User.db?.readyState === 1;
 
@@ -26,6 +27,36 @@ const signAccessToken = (user) => {
         jwtSecret,
         { subject: String(user._id), expiresIn: "1d" }
     );
+};
+
+const normalizeEmail = (email = '') => email.trim().toLowerCase();
+
+const buildUsernameBase = (email = '', name = '') => {
+    const nameSeed = name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')
+        .slice(0, 14);
+    const emailSeed = email
+        .split('@')[0]
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')
+        .slice(0, 14);
+
+    return nameSeed || emailSeed || `user${Date.now().toString().slice(-6)}`;
+};
+
+const getUniqueUsername = async (email, name) => {
+    const base = buildUsernameBase(email, name);
+    let candidate = base;
+    let counter = 1;
+
+    while (await User.exists({ username: candidate })) {
+        candidate = `${base}${counter}`.slice(0, 20);
+        counter += 1;
+    }
+
+    return candidate;
 };
 
 export const getProfile = async (req, res) => {
@@ -218,3 +249,78 @@ export const createAdmin = async (req, res) => {
 
     res.status(201).json({ status: "ok", message: "Admin created successfully" });
 }
+
+export const googleSignIn = async (req, res) => {
+    if (!isDbReady()) {
+        return res.status(503).set('Retry-After', '5').json({ status: "error", message: "Server is warming up, please retry in a few seconds." });
+    }
+
+    const { credential } = req.body || {};
+    if (!credential) {
+        return res.status(400).json({ status: 'error', message: 'Google credential is required' });
+    }
+
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+        return res.status(500).json({ status: 'error', message: 'Google Sign-In is not configured on server' });
+    }
+
+    try {
+        const client = new OAuth2Client(googleClientId);
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: googleClientId,
+        });
+
+        const payload = ticket.getPayload();
+        const email = normalizeEmail(payload?.email || '');
+
+        if (!email || payload?.email_verified !== true) {
+            return res.status(401).json({ status: 'error', message: 'Google account email is not verified' });
+        }
+
+        let user = await User.findOne({ email });
+        if (!user) {
+            const username = await getUniqueUsername(email, payload?.name || '');
+            const randomPassword = crypto.randomBytes(32).toString('hex');
+            const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+            user = new User({
+                name: payload?.name?.trim() || email.split('@')[0],
+                email,
+                username,
+                password: hashedPassword,
+                role: 'student',
+            });
+        } else if (!user.name && payload?.name) {
+            user.name = payload.name.trim();
+        }
+
+        const token = signAccessToken(user);
+        const legacyToken = crypto.randomBytes(32).toString('hex');
+        user.token = legacyToken;
+        user.tokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+        await user.save();
+
+        res.cookie('token', token, {
+            ...buildAuthCookieOptions(),
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({
+            status: 'ok',
+            message: 'Login successful',
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                username: user.username,
+            },
+        });
+    } catch (error) {
+        console.error('Google sign-in failed:', error?.message || error);
+        return res.status(401).json({ status: 'error', message: 'Google authentication failed' });
+    }
+};

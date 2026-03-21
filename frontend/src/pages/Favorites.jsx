@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ResourceCard from "../components/ResourceCard";
 import { apiFetch } from "../utils/auth";
-import { FiHeart } from "react-icons/fi";
+import { FiBookmark } from "react-icons/fi";
 
 const Favorites = () => {
   const [activeTab, setActiveTab] = useState("papers");
@@ -65,7 +65,7 @@ const Favorites = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-500/20">
-              <FiHeart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <FiBookmark className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
               Favorites
@@ -121,7 +121,7 @@ const Favorites = () => {
           /* Empty State */
           <div className="text-center py-20">
             <div className="inline-block p-4 rounded-full bg-gray-100 dark:bg-gray-900 mb-4">
-              <FiHeart className="w-8 h-8 text-gray-400 dark:text-gray-600" />
+              <FiBookmark className="w-8 h-8 text-gray-400 dark:text-gray-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               No favorite {activeTab} yet

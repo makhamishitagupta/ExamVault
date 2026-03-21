@@ -207,8 +207,8 @@ const ResourceCard = ({ item, type = 'paper', isFavorite: initialFav, onLike: on
           <svg
             className={`w-6 h-6 transition-all duration-300 ${
               isFavorite
-                ? "text-red-500 fill-red-500"
-                : "text-gray-400 dark:text-gray-500 hover:text-red-400"
+                ? "text-blue-500 fill-blue-500"
+                : "text-gray-400 dark:text-gray-500 hover:text-blue-400"
             }`}
             fill={isFavorite ? "currentColor" : "none"}
             stroke="currentColor"
@@ -218,7 +218,7 @@ const ResourceCard = ({ item, type = 'paper', isFavorite: initialFav, onLike: on
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              d="M5 3a2 2 0 00-2 2v16l9-4 9 4V5a2 2 0 00-2-2H5z"
             />
           </svg>
         </button>

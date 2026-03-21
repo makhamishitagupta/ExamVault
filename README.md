@@ -224,6 +224,14 @@ CLOUD_NAME=<cloudinary_cloud_name>
 CLOUD_API_KEY=<cloudinary_api_key>
 CLOUD_API_SECRET=<cloudinary_api_secret>
 JWT_SECRET=<long_random_secret_string>
+GOOGLE_CLIENT_ID=<google-oauth-client-id>
+```
+
+Create a `frontend/.env` file:
+
+```env
+VITE_API_BASE=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=<same-google-oauth-client-id>
 ```
 
 > ⚠️ If using MongoDB Atlas, add your machine's IP to the **Network Access** whitelist.

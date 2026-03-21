@@ -114,38 +114,38 @@ const EditPaper = () => {
 
   if (fetching) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading paper data...</div>
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-8 flex items-center justify-center min-h-[220px]">
+        <div className="text-lg text-gray-300">Loading paper data...</div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <FiEdit3 className="w-7 h-7 text-blue-600" />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          <FiEdit3 className="w-7 h-7 text-blue-400" />
           Edit Paper
         </h1>
         <button
           onClick={() => navigate('/admin/manage-papers')}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-400 hover:text-white"
         >
           ← Back to Manage Papers
         </button>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm p-8">
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-8">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-xl">
             {success}
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-red-500/10 border border-red-500/40 text-red-300 px-4 py-3 rounded-xl">
             {error}
           </div>
         )}
@@ -154,7 +154,7 @@ const EditPaper = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Title Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Title *
               </label>
               <input
@@ -166,8 +166,8 @@ const EditPaper = () => {
                     message: 'Title must be at least 3 characters'
                   }
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.title ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.title ? 'border-red-500/60' : 'border-gray-700'
                 }`}
                 placeholder="e.g., Data Structures Mid Term Exam"
               />
@@ -178,7 +178,7 @@ const EditPaper = () => {
 
             {/* Subject Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Subject *
               </label>
               <select
@@ -186,8 +186,8 @@ const EditPaper = () => {
                   required: 'Subject is required',
                   validate: (value) => value !== '' || 'Please select a subject'
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.subject ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.subject ? 'border-red-500/60' : 'border-gray-700'
                 }`}
               >
                 <option value="">Select Subject</option>
@@ -204,7 +204,7 @@ const EditPaper = () => {
 
             {/* Year Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Year (Optional)
               </label>
               <input
@@ -219,8 +219,8 @@ const EditPaper = () => {
                     message: `Year cannot be later than ${new Date().getFullYear() + 1}`
                   }
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.year ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.year ? 'border-red-500/60' : 'border-gray-700'
                 }`}
                 placeholder="e.g., 2024"
               />
@@ -231,7 +231,7 @@ const EditPaper = () => {
 
             {/* Exam Type Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Exam Type *
               </label>
               <select
@@ -239,8 +239,8 @@ const EditPaper = () => {
                   required: 'Exam type is required',
                   validate: (value) => value !== '' || 'Please select an exam type'
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.examType ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.examType ? 'border-red-500/60' : 'border-gray-700'
                 }`}
               >
                 <option value="">Select Exam Type</option>
@@ -257,14 +257,14 @@ const EditPaper = () => {
 
           {/* PDF URL Field (Read-only) */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               PDF URL (Cannot be changed)
             </label>
             <input
               type="url"
               {...register('pdfUrl')}
               disabled
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              className="w-full px-4 py-2.5 border border-gray-700 rounded-xl bg-gray-900 text-gray-500 cursor-not-allowed"
               placeholder="PDF URL"
             />
             <p className="text-sm text-gray-500 mt-2">
@@ -277,9 +277,9 @@ const EditPaper = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+              className={`px-8 py-3 rounded-xl font-medium transition-colors ${
                 loading
-                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  ? 'bg-gray-600 cursor-not-allowed text-white'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
@@ -289,7 +289,7 @@ const EditPaper = () => {
               type="button"
               onClick={() => navigate('/admin/manage-papers')}
               disabled={loading}
-              className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-800 text-gray-200 px-8 py-3 rounded-xl hover:bg-gray-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

@@ -78,23 +78,23 @@ const UploadNote = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <FiUploadCloud className="w-7 h-7 text-blue-600" />
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+        <FiUploadCloud className="w-7 h-7 text-blue-400" />
         Upload Note
       </h1>
       
-      <div className="bg-white rounded-lg shadow-sm p-8">
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-8">
         {/* Success Message */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 px-4 py-3 rounded-xl">
             {success}
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-red-500/10 border border-red-500/40 text-red-300 px-4 py-3 rounded-xl">
             {error}
           </div>
         )}
@@ -103,7 +103,7 @@ const UploadNote = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Title Field */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Title *
               </label>
               <input
@@ -115,8 +115,8 @@ const UploadNote = () => {
                     message: 'Title must be at least 3 characters'
                   }
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.title ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.title ? 'border-red-500/60' : 'border-gray-700'
                 }`}
                 placeholder="e.g., Data Structures Unit 1 Notes"
               />
@@ -126,7 +126,7 @@ const UploadNote = () => {
             </div>
             {/* Unit Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Unit *
               </label>
               <input
@@ -142,8 +142,8 @@ const UploadNote = () => {
                     message: 'Unit cannot exceed 20'
                   }
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.unit ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.unit ? 'border-red-500/60' : 'border-gray-700'
                 }`}
                 placeholder="e.g., 1, 2, 3..."
               />
@@ -154,7 +154,7 @@ const UploadNote = () => {
 
             {/* Subject Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Subject *
               </label>
               <select
@@ -162,8 +162,8 @@ const UploadNote = () => {
                   required: 'Subject is required',
                   validate: (value) => value !== '' || 'Please select a subject'
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.subject ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.subject ? 'border-red-500/60' : 'border-gray-700'
                 }`}
               >
                 <option value="">Select Subject</option>
@@ -180,7 +180,7 @@ const UploadNote = () => {
 
             {/* Year Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Year *
               </label>
               <input
@@ -196,8 +196,8 @@ const UploadNote = () => {
                     message: "Notes can belong only from 1 to 4yrs"
                   }
                 })}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.year ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 ${
+                  errors.year ? 'border-red-500/60' : 'border-gray-700'
                 }`}
                 placeholder="e.g., 2024"
               />
@@ -209,7 +209,7 @@ const UploadNote = () => {
 
           {/* PDF URL Field */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               PDF URL *
             </label>
             {/* <input
@@ -232,7 +232,7 @@ const UploadNote = () => {
               {...register("file", {
                 required: "PDF file is required",
               })}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-4 py-2.5 border rounded-xl bg-black/40 text-gray-100 file:mr-4 file:rounded-lg file:border-0 file:bg-gray-800 file:text-gray-200 file:px-3 file:py-1.5 ${
                 errors.pdfUrl ? 'border-red-300' : 'border-gray-300'
               }`}
             />
@@ -250,9 +250,9 @@ const UploadNote = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+              className={`px-8 py-3 rounded-xl font-medium transition-colors ${
                 loading
-                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  ? 'bg-gray-600 cursor-not-allowed text-white'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
@@ -266,7 +266,7 @@ const UploadNote = () => {
                 setSuccess('');
               }}
               disabled={loading}
-              className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-800 text-gray-200 px-8 py-3 rounded-xl hover:bg-gray-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Reset
             </button>
